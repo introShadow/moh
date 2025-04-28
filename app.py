@@ -38,13 +38,9 @@ def player_join():
                 ON DUPLICATE KEY UPDATE join_time = CURRENT_TIMESTAMP
             """
             cursor.execute(sql, (nickname,))
-            connection.commit()
+        connection.commit()
+        connection.close()
+        return {"status": "player added"}, 200
+
     except Exception as e:
         return {"error": str(e)}, 500
-    finally:
-        connection.close()
-
-    return {"status": "player added"}, 200
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.getenv("PORT", 5000)))
