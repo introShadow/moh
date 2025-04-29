@@ -1,14 +1,12 @@
 from flask import Flask, request
-import pymysql
 import os
+import requests
 
 app = Flask(__name__)
 
-# Настройки подключения к базе данных
-DB_HOST = os.getenv("DB_HOST", "localhost")
-DB_USER = os.getenv("DB_USER", "root")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "password")
-DB_NAME = os.getenv("DB_NAME", "moh_db")
+# Конфигурация API
+API_URL = os.getenv("REMOTE_API_URL", "https://introhub.top/api/player_join.php")
+API_KEY = os.getenv("REMOTE_API_KEY", "MY_SECRET_KEY")  # Заменишь в Render
 
 @app.route('/')
 def home():
@@ -17,30 +15,19 @@ def home():
 @app.route('/player_join', methods=['POST'])
 def player_join():
     data = request.json
-    nickname = data.get('nickname')
+    nickname = data.get("nickname")
 
     if not nickname:
         return {"error": "No nickname provided"}, 400
 
+    # Подготовка данных и отправка запроса на твой сайт
     try:
-        connection = pymysql.connect(
-            host=DB_HOST,
-            user=DB_USER,
-            password=DB_PASSWORD,
-            database=DB_NAME,
-            cursorclass=pymysql.cursors.DictCursor
-        )
-        with connection.cursor() as cursor:
-            sql = """
-                INSERT INTO players (nickname)
-                VALUES (%s)
-                ON DUPLICATE KEY UPDATE join_time = CURRENT_TIMESTAMP
-            """
-            cursor.execute(sql, (nickname,))
-        connection.commit()
-        connection.close()
-        return {"status": "player added"}, 200
-
+        payload = {
+            "nickname": nickname,
+            "api_key": API_KEY
+        }
+        response = requests.post(API_URL, data=payload, timeout=5)
+        return response.json(), response.status_code
     except Exception as e:
         return {"error": str(e)}, 500
 
