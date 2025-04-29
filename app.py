@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 # Конфигурация API
 API_URL = os.getenv("REMOTE_API_URL", "https://introhub.top/api/player_join.php")
-API_KEY = os.getenv("REMOTE_API_KEY", "MY_SECRET_KEY")  # Заменишь в Render
+API_KEY = os.getenv("REMOTE_API_KEY", "NIGHTFALLCONNECTTEST123")  # Заменишь в Render
 
 @app.route('/')
 def home():
